@@ -38,7 +38,7 @@ class ContactDatabase
         data.include?(string_value)
       end
     end
-    
+
     # The contacts_array has the matches, but we also need to index data
     # from the contacts_hash
     contacts_hash.select do |contact, contact_index|
@@ -46,10 +46,10 @@ class ContactDatabase
     end
   end
 
-  def add_row(name, email)
+  def add_row(name, email, phone_numbers)
     begin
       CSV.open(csv_file, 'a') do |csv|
-        csv << [name, email]
+        csv << [name, email, phone_numbers.to_a.inspect]
       end
     rescue StandardError => error
       raise(ContactDatabaseError, error.message)
@@ -58,13 +58,13 @@ class ContactDatabase
   end
 
   private
-    def csv_file
-      @csv_file
-    end
+  def csv_file
+    @csv_file
+  end
 
-    def open_database_for_reading
-      CSV.read(csv_file, 'r')
-    rescue StandardError => error
-      raise(ContactDatabaseError, error.message)
-    end
+  def open_database_for_reading
+    CSV.read(csv_file, 'r')
+  rescue StandardError => error
+    raise(ContactDatabaseError, error.message)
+  end
 end

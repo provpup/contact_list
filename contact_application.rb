@@ -46,9 +46,14 @@ class ContactApplication
   end
 
   def display_contact_details(contact)
-    puts "Name:   #{contact.name}"
-    puts "E-mail: #{contact.email}"
-    puts "Index:  #{contact.id}"
+    puts "Index:        #{contact.id}"
+    puts "Name:         #{contact.name}"
+    puts "E-mail:       #{contact.email}"
+    phone_label = "Phone Number:"
+    puts "#{phone_label} <None>" if contact.phone_numbers.empty?
+    contact.phone_numbers.each_pair do |number_type, number|
+      puts "#{phone_label} (#{number_type.to_s.capitalize}) #{number}"
+    end
     puts
   end
 
@@ -58,11 +63,25 @@ class ContactApplication
       print "\nPlease enter e-mail address for new contact: "
       email = STDIN.gets.chomp.strip
       unique_email = !Contact.email_already_exists?(email)
-      puts "Email already exists in the contact database!" if !unique_email
+      puts 'Email already exists in the contact database!' if !unique_email
     end
-    print "Please enter name for new contact: "
+    print 'Please enter name for new contact: '
     name = STDIN.gets.chomp.strip
-    contact = Contact.create(name, email)
+    no_tag = 'n'
+    phone_number_query = "Do you want to enter phone number for new contact? (y/#{no_tag}): "
+    print phone_number_query
+    no_more_phone_numbers = no_tag == STDIN.gets.chomp
+    phone_numbers = Hash.new
+    until no_more_phone_numbers
+      print 'Please enter the category of the phone number: '
+      phone_type = STDIN.gets.chomp.to_sym
+      print 'Please enter the phone number: '
+      phone_number = STDIN.gets.chomp
+      phone_numbers[phone_type] = phone_number
+      print phone_number_query
+      no_more_phone_numbers = no_tag == STDIN.gets.chomp
+    end
+    contact = Contact.create(name, email, phone_numbers)
     puts "\nNew contact #{contact.to_s} added successfully with id: #{contact.id}"
   rescue StandardError => error
     puts "Error encountered creating new contact: #{error.message}"
