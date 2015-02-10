@@ -89,11 +89,22 @@ class ContactApplication
   end
 
   def display_contact_list(contacts, last_line_description)
-    contacts.each do |contact|
-      puts "#{contact.id}: #{contact.to_s}"
+    original_number_of_contacts = contacts.length
+    page_size = 5
+
+    until contacts.empty?
+      page_size.times do
+        contact = contacts.shift
+        puts "#{contact.id}: #{contact.to_s}" unless contact.nil?
+      end
+      unless contacts.empty?
+        print "\nPlease press <Enter> to see more contacts..."
+        gets.chomp
+      end
     end
-    puts "---"
-    puts "#{contacts.length} records #{last_line_description}"
+
+    puts "\n---"
+    puts "#{original_number_of_contacts} records #{last_line_description}"
   end
 
   def list_all_contacts
