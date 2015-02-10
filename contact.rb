@@ -61,15 +61,13 @@ class Contact
     end
 
     def email_already_exists?(email)
-      # Find contacts that contain the email
+      # Find contacts that contain the email string
       contacts_containing_email = find(email)
 
-      # Out of those, select any with an exact match
-      contacts_with_exact_email = contacts_containing_email.select do |contact|
+      # Out of those, see if there are any with an exact match
+      contacts_containing_email.any? do |contact|
         contact.email == email
       end
-
-      !contacts_with_exact_email.empty?
     end
     
   end

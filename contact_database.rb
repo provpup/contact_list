@@ -38,6 +38,7 @@ class ContactDatabase
         data.include?(string_value)
       end
     end
+    
     # The contacts_array has the matches, but we also need to index data
     # from the contacts_hash
     contacts_hash.select do |contact, contact_index|

@@ -57,15 +57,16 @@ rescue StandardError => error
 end
 
 def find_contact(contact_query)
-  puts "Finding contact with data #{contact_query}"
   contacts = Contact.find(contact_query)
+  contacts.each do |contact|
+    display_contact_details(contact)
+  end
+  puts "---"
+  puts "#{contacts.length} records found with data \"#{contact_query}\"\n"
 rescue StandardError => error
   puts "Error encountered retrieving contacts with query data: #{contact_query}"
   puts error.message
   error.backtrace.inspect
-end
-
-class InvalidCommandLineError < StandardError
 end
 
 # Get the command line arguments without the name of this script
@@ -81,7 +82,7 @@ begin
     contact_id = command_line_args.shift
     if contact_id.nil? || contact_id.to_i == 0
       # No argument or not a valid number
-      raise(InvalidCommandLineError, "Invalid argument for #{:show.to_s}: #{contact_id}")
+      raise(ArgumentError, "Invalid argument for #{:show.to_s}: #{contact_id}")
     end
     show_contact(contact_id.to_i)
   when :find.to_s
@@ -90,9 +91,9 @@ begin
   when :help.to_s
     show_help
   else
-    raise(InvalidCommandLineError, "Invalid argument not recognized: #{command_line_args.join(' ')}")
+    raise(ArgumentError, "Invalid argument not recognized: #{command_line_args.join(' ')}")
   end
-rescue InvalidCommandLineError => error
+rescue ArgumentError => error
   puts "\n#{error.message}\n\n"
   show_help
 end
