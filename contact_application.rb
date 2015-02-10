@@ -1,4 +1,5 @@
 require_relative 'contact'
+require 'io/console'
 
 class ContactApplication
 
@@ -98,8 +99,8 @@ class ContactApplication
         puts "#{contact.id}: #{contact.to_s}" unless contact.nil?
       end
       unless contacts.empty?
-        print "\nPlease press <Enter> to see more contacts..."
-        gets.chomp
+        puts "\nPress any key to see more contacts..."
+        input = STDIN.getch
       end
     end
 
