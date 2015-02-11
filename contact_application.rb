@@ -5,15 +5,17 @@ class ContactApplication
 
   def initialize(arguments)
     @arguments = arguments
-    # @application_arguments = arguments
-    @recognized_commands = { :new => '                - Create a new contact',
-                             :list => '               - List all contacts',
-                             :show => ' <id>          - Show a contact whose id value is <id>',
-                             :find => ' <search text> - Find a contact whose name or email contains <search text>',
-                             :help => '               - Show this help message' }
   end
 
   def run
+    recognized_commands = { :new => CreateNewContactCommand.command_description,
+                            :list => ListAllContactsCommand.command_description,
+                            :show => ShowContactCommand.command_description,
+                            :find => FindContactsCommand.command_description,
+                            :help => ShowHelpCommand.command_description }
+
+    # Look at the arguments passed into this application and then
+    # take the appropriate action
     case @arguments.shift
     when :new.to_s
       CreateNewContactCommand.new(*@arguments).run
@@ -24,20 +26,15 @@ class ContactApplication
     when :find.to_s
       FindContactsCommand.new(*@arguments).run
     when :help.to_s
-      show_help
+      ShowHelpCommand.new(recognized_commands).run
     else
       raise(ArgumentError, "Invalid argument not recognized: #{@arguments.join(' ')}")
     end
   rescue ArgumentError => error
-    puts "\n#{error.message}\n\n"
-    show_help
-  end
-
-  private
-  def show_help
-    puts "This program can be run with the following arguments:"
-    @recognized_commands.each do |program_flag, flag_description|
-      puts "#{program_flag}#{flag_description}"
-    end
+    # Show a help message if arguments are malformed
+    puts "\n#{error.message}"
+    puts error.backtrace.inspect
+    puts "\n"
+    ShowHelpCommand.new(recognized_commands).run
   end
 end

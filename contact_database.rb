@@ -46,6 +46,7 @@ class ContactDatabase
     end
   end
 
+  # Add a new row to the database by appending it to the end of the CSV file
   def add_row(name, email, phone_numbers)
     begin
       CSV.open(csv_file, 'a') do |csv|

@@ -1,6 +1,7 @@
 require_relative 'contact'
 require 'io/console'
 
+# Module that contains methods for displaying contact information
 module ContactDisplay
 
   def display_contact_list(contacts, last_line_description)
@@ -35,13 +36,14 @@ module ContactDisplay
   end
 end
 
+# Parent class for contact commands
 class ContactCommand
   def initialize(*arguments)
     validate_arguments(*arguments)
     @arguments = arguments
   end
 
-  def command_description
+  def self.command_description
   end
 
   def run
@@ -49,19 +51,21 @@ class ContactCommand
   end
 end
 
+# This class runs through the create new contact workflow
 class CreateNewContactCommand < ContactCommand
 
+  # This command takes no arguments
   def validate_arguments(*arguments)
     if !arguments.empty?
-      # This command shouldn't take any arguments
       raise(ArgumentError, "Invalid arguments: #{arguments.join(' ')}")
     end
   end
 
-  def command_description
+  def self.command_description
     '                - Create a new contact'
   end
 
+  # Prompt the user for name, email, and optional phone number information
   def run
     unique_email = false
     until unique_email
@@ -90,33 +94,37 @@ class CreateNewContactCommand < ContactCommand
     puts "\nNew contact #{contact.to_s} added successfully with id: #{contact.id}"
   rescue StandardError => error
     puts "Error encountered creating new contact: #{error.message}"
-    error.backtrace.inspect
+    puts error.backtrace.inspect
   end
 end
 
+# This command lists all contacts
 class ListAllContactsCommand < ContactCommand
   include ContactDisplay
 
+  # This command shouldn't take any arguments
   def validate_arguments(*arguments)
     if !arguments.empty?
-      # This command shouldn't take any arguments
       raise(ArgumentError, "Invalid arguments: #{arguments.join(' ')}")
     end
   end
 
-  def command_description
+  def self.command_description
     '               - List all contacts'
   end
 
+  # List all contacts
   def run
     contacts = Contact.all
     display_contact_list(contacts, 'total')
   end
 end
 
+# This command shows a single contact
 class ShowContactCommand < ContactCommand
   include ContactDisplay
 
+  # This command only takes in a single number
   def validate_arguments(*arguments)
     if arguments.length != 1
       # This command shouldn't take any arguments
@@ -130,41 +138,69 @@ class ShowContactCommand < ContactCommand
     @contact_id = @contact_id.to_i
   end
 
-  def command_description
+  def self.command_description
     ' <id>          - Show a contact whose id value is <id>'
   end
 
+  # Display the contact details for the provided contact id
   def run
     contact = Contact.get(@contact_id)
     display_contact_details(contact)
   rescue StandardError => error
     puts "Error encountered retrieving contact with id: #{@contact_id}"
     puts error.message
-    error.backtrace.inspect
+    puts error.backtrace.inspect
   end
 end
 
+# This class searches for contacts containing a given string
 class FindContactsCommand < ContactCommand
   include ContactDisplay
 
+  # This command accepts only one argument
   def validate_arguments(*arguments)
     if arguments.length != 1
-      # This command shouldn't take any arguments
       raise(ArgumentError, "Invalid arguments: #{arguments.join(' ')}")
     end
     @contact_query = arguments.shift
   end
 
-  def command_description
+  def self.command_description
     ' <search text> - Find a contact whose name or email contains <search text>'
   end
 
+  # Display all matches for the query
   def run
     contacts = Contact.find(@contact_query)
     display_contact_list(contacts, "found with data \"#{@contact_query}\"\n")
   rescue StandardError => error
     puts "Error encountered retrieving contacts with query data: #{@contact_query}"
     puts error.message
-    error.backtrace.inspect
+    puts error.backtrace.inspect
+  end
+end
+
+# This class shows the help message for the program
+class ShowHelpCommand < ContactCommand
+
+  # The expected hash has command flag symbols as keys
+  # and the command description as the values
+  def validate_arguments(*arguments)
+    if arguments.length != 1
+      # This command shouldn't take any arguments
+      raise(ArgumentError, "Invalid arguments: #{arguments.join(' ')}")
+    end
+    @command_flag_description_hash = arguments.first
+  end
+
+  def self.command_description
+    '               - Show this help message'
+  end
+
+  def run
+    puts "This program can be run with the following arguments:"
+    @command_flag_description_hash.each do |program_flag, flag_description|
+      puts "#{program_flag}#{flag_description}"
+    end
   end
 end
