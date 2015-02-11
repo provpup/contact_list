@@ -77,33 +77,33 @@ class Contact
     end
 
     private
-      # This method takes in a string value that was serialized hash
-      # the string should represent an array of arrays (each subarray
-      # is a key-value pair in the hash)
-      # For example:
-      # "[]" should yield an empty hash
-      # "[[:mobile, ""604-123-4567""], [:office, ""604-765-4321""]]" should
-      #   yield a hash object with two key-value pairs
-      def parse_phone_numbers(phone_num_string)
-        phone_numbers = Hash.new
-        # First remove the outer brackets
-        phone_num_string = phone_num_string[1, phone_num_string.length - 2]
-        # Remove the first opening bracket and the last closing bracket
-        phone_num_string = phone_num_string[1, phone_num_string.length - 2] unless phone_num_string.nil?
-        phone_num_string = "" if phone_num_string.nil?
-        array_key_value_pair_strings = phone_num_string.split('], [')
-        array_key_value_pair_strings.each do |string_value|
-          key_val_array = string_value.split(', ')
-          if key_val_array[0].start_with?(':')
-            # If key is a symbol, convert it
-            key_val_array[0] = key_val_array[0][1, key_val_array[0].length - 1]
-            key_val_array[0] = key_val_array[0].to_sym
-          end
-          # Remove any quotes from the phone number string
-          phone_numbers[key_val_array[0]] = key_val_array[1].gsub('"','')
+    # This method takes in a string value that was serialized hash
+    # the string should represent an array of arrays (each subarray
+    # is a key-value pair in the hash)
+    # For example:
+    # "[]" should yield an empty hash
+    # "[[:mobile, ""604-123-4567""], [:office, ""604-765-4321""]]" should
+    #   yield a hash object with two key-value pairs
+    def parse_phone_numbers(phone_num_string)
+      phone_numbers = Hash.new
+      # First remove the outer brackets
+      phone_num_string = phone_num_string[1, phone_num_string.length - 2]
+      # Remove the first opening bracket and the last closing bracket
+      phone_num_string = phone_num_string[1, phone_num_string.length - 2] unless phone_num_string.nil?
+      phone_num_string = "" if phone_num_string.nil?
+      array_key_value_pair_strings = phone_num_string.split('], [')
+      array_key_value_pair_strings.each do |string_value|
+        key_val_array = string_value.split(', ')
+        if key_val_array[0].start_with?(':')
+          # If key is a symbol, convert it
+          key_val_array[0] = key_val_array[0][1, key_val_array[0].length - 1]
+          key_val_array[0] = key_val_array[0].to_sym
         end
-
-        phone_numbers
+        # Remove any quotes from the phone number string
+        phone_numbers[key_val_array[0]] = key_val_array[1].gsub('"','')
       end
+
+      phone_numbers
+    end
   end
 end
