@@ -47,10 +47,10 @@ class ContactDatabase
   end
 
   # Add a new row to the database by appending it to the end of the CSV file
-  def add_row(name, email, phone_numbers)
+  def add_row(*row_values)
     begin
       CSV.open(csv_file, 'a') do |csv|
-        csv << [name, email, phone_numbers.to_a.inspect]
+        csv << row_values
       end
     rescue StandardError => error
       raise(ContactDatabaseError, error.message)

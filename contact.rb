@@ -22,7 +22,7 @@ class Contact
     def create(name, email, phone_numbers)
       database = ContactDatabase.new
       # Any standard errors raised by ContactDatabase will flow upwards
-      id = database.add_row(name, email, phone_numbers)
+      id = database.add_row(name, email, phone_numbers.to_a.inspect)
 
       contact = Contact.new(name, email, phone_numbers, id)
     end
