@@ -28,7 +28,7 @@ class Contact
   end
 
   def destroy
-    ContactDatabase.remove_row_with_id(id)
+    ContactDatabase.remove_row_with_id(id) if id
   end
  
   ## Class Methods
