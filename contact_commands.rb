@@ -28,11 +28,6 @@ module ContactDisplay
     puts "First Name:   #{contact.first_name}"
     puts "Last Name:    #{contact.last_name}"
     puts "E-mail:       #{contact.email}"
-    # phone_label = 'Phone Number:'
-    # puts "#{phone_label} <None>" if contact.phone_numbers.empty?
-    # contact.phone_numbers.each_pair do |number_type, number|
-    #   puts "#{phone_label} (#{number_type.to_s.capitalize}) #{number}"
-    # end
     puts
   end
 end
@@ -79,20 +74,6 @@ class CreateNewContactCommand < ContactCommand
     first_name = STDIN.gets.chomp.strip
     print 'Please enter last name for new contact: '
     last_name = STDIN.gets.chomp.strip
-    # no_tag = 'n'
-    # phone_number_query = "Do you want to enter phone number for new contact? (y/#{no_tag}): "
-    # print phone_number_query
-    # no_more_phone_numbers = no_tag == STDIN.gets.chomp
-    # phone_numbers = Hash.new
-    # until no_more_phone_numbers
-    #   print 'Please enter the category of the phone number: '
-    #   phone_type = STDIN.gets.chomp.to_sym
-    #   print 'Please enter the phone number: '
-    #   phone_number = STDIN.gets.chomp
-    #   phone_numbers[phone_type] = phone_number
-    #   print phone_number_query
-    #   no_more_phone_numbers = no_tag == STDIN.gets.chomp
-    # end
     contact = Contact.create(first_name, last_name, email)#, phone_numbers)
     puts "\nNew contact #{contact.to_s} added successfully with id: #{contact.id}"
   rescue StandardError => error
@@ -234,22 +215,7 @@ class UpdateContactCommand < ContactCommand
     contact.first_name = first_name unless first_name.empty?
     contact.last_name = last_name unless last_name.empty?
     contact.save
-      
-    # no_tag = 'n'
-    # phone_number_query = "Do you want to enter phone number for new contact? (y/#{no_tag}): "
-    # print phone_number_query
-    # no_more_phone_numbers = no_tag == STDIN.gets.chomp
-    # phone_numbers = Hash.new
-    # until no_more_phone_numbers
-    #   print 'Please enter the category of the phone number: '
-    #   phone_type = STDIN.gets.chomp.to_sym
-    #   print 'Please enter the phone number: '
-    #   phone_number = STDIN.gets.chomp
-    #   phone_numbers[phone_type] = phone_number
-    #   print phone_number_query
-    #   no_more_phone_numbers = no_tag == STDIN.gets.chomp
-    # end
-    # contact = Contact.update(first_name, email, phone_numbers)
+
     puts "\nContact #{contact.to_s} updated successfully with id: #{contact.id}"
   rescue StandardError => error
     puts "Error encountered updating contact with id: #{@contact_id}"
@@ -282,14 +248,6 @@ class DeleteContactCommand < ContactCommand
   # Display the contact details for the provided contact id
   def run
     contact = Contact.get(@contact_id)
-
-    # unique_email = false
-    # until unique_email
-    #   print "\nPlease enter e-mail address for new contact [#{contact.email}]: "
-    #   email = STDIN.gets.chomp.strip
-    #   unique_email = !Contact.email_already_exists?(email)
-    #   puts 'Email already exists in the contact database!' if !unique_email
-    # end
     unless contact.nil?
       yes_tag = 'y'
       no_tag = 'n'
@@ -300,32 +258,6 @@ class DeleteContactCommand < ContactCommand
     else
       raise StandardError, "Invalid id #{@contact_id}"
     end
-    # print "\nPlease enter e-mail address for new contact [#{contact.email}]: "
-    # email = STDIN.gets.chomp.strip
-    # print 'Please enter first name for contact [#{contact.first_name}]: '
-    # first_name = STDIN.gets.chomp.strip
-    # print 'Please enter last name for contact [#{contact.last_name}]: '
-    # last_name = STDIN.gets.chomp.strip
-    # contact.email = email unless email.empty?
-    # contact.first_name = first_name unless first_name.empty?
-    # contact.last_name = last_name unless last_name.empty?
-    # contact.save
-      
-    # no_tag = 'n'
-    # phone_number_query = "Do you want to enter phone number for new contact? (y/#{no_tag}): "
-    # print phone_number_query
-    # no_more_phone_numbers = no_tag == STDIN.gets.chomp
-    # phone_numbers = Hash.new
-    # until no_more_phone_numbers
-    #   print 'Please enter the category of the phone number: '
-    #   phone_type = STDIN.gets.chomp.to_sym
-    #   print 'Please enter the phone number: '
-    #   phone_number = STDIN.gets.chomp
-    #   phone_numbers[phone_type] = phone_number
-    #   print phone_number_query
-    #   no_more_phone_numbers = no_tag == STDIN.gets.chomp
-    # end
-    # contact = Contact.update(first_name, email, phone_numbers)
   rescue StandardError => error
     puts "Error encountered removing contact with id: #{@contact_id}"
     puts error.message

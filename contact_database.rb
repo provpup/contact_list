@@ -15,14 +15,13 @@ class ContactDatabase
   def all_rows
     connection = establish_connection
     rows = connection.exec("SELECT * FROM #{CONTACT_TABLE_NAME} ORDER BY id;")
-    #rows
   rescue PG::Error => error
     raise(ContactDatabaseError, error.message)
   end
 
   def find_row_by_id(row_id)
     connection = self.establish_connection
-    row = connection.exec_params("SELECT * FROM #{CONTACT_TABLE_NAME} WHERE id = $1 ORDER BY id;", [row_id])
+    row = connection.exec_params("SELECT * FROM #{CONTACT_TABLE_NAME} WHERE id = $1;", [row_id])
   rescue PG::Error => error
     raise(ContactDatabaseError, error.message)
   end
@@ -60,13 +59,13 @@ class ContactDatabase
     raise(ContactDatabaseError, error.message)
   end
 
-  private
   def establish_connection
     unless @connection
       @connection = PG.connect(DatabaseCredentials.credentials)
     end
     @connection
   end
-end
+
+  end
 
 end

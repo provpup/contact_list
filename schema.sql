@@ -4,9 +4,8 @@ CREATE TABLE contacts (
   firstname varchar(40) NOT NULL,
   lastname  varchar(40) NOT NULL,
   email     varchar(40) NOT NULL,
-  id        serial NOT NULL PRIMARY KEY
+  id        serial      NOT NULL PRIMARY KEY
 );
-
 
 INSERT INTO contacts (firstname, lastname, email) VALUES 
 ('Alan','Hodges','alan.hodges@abcdef.com'),
