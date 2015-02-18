@@ -22,7 +22,8 @@ class Contact
     if id
       self.class.update(self)
     else
-      id = self.class.create(first_name, last_name, email)
+      new_contact = self.class.create(first_name, last_name, email)
+      id = new_contact.id
     end
   end
 

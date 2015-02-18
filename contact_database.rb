@@ -1,5 +1,5 @@
 require 'pg'
-require 'pry'
+require_relative 'database_credentials'
 
 class ContactDatabaseError < StandardError
 end
@@ -14,7 +14,7 @@ class ContactDatabase
   # the contact data array as the value
   def all_rows
     connection = establish_connection
-    rows = connection.exec("SELECT * FROM #{CONTACT_TABLE_NAME};")
+    rows = connection.exec("SELECT * FROM #{CONTACT_TABLE_NAME} ORDER BY id;")
     #rows
   rescue PG::Error => error
     raise ContactDatabaseError, error.message
@@ -22,7 +22,7 @@ class ContactDatabase
 
   def find_row_by_id(row_id)
     connection = self.establish_connection
-    row = connection.exec_params("SELECT * FROM #{CONTACT_TABLE_NAME} WHERE id = $1;", [row_id])
+    row = connection.exec_params("SELECT * FROM #{CONTACT_TABLE_NAME} WHERE id = $1 ORDER BY id;", [row_id])
   rescue PG::Error => error
     raise ContactDatabaseError, error.message
   end
@@ -30,7 +30,7 @@ class ContactDatabase
   def search_for_row_with(values_hash)
     connection = self.establish_connection
     hash_key = values_hash.keys.first
-    rows = connection.exec_params("SELECT * FROM #{CONTACT_TABLE_NAME} WHERE #{hash_key} = $1;", [values_hash[hash_key]])
+    rows = connection.exec_params("SELECT * FROM #{CONTACT_TABLE_NAME} WHERE #{hash_key} = $1 ORDER BY id;", [values_hash[hash_key]])
   rescue PG::Error => error
     raise ContactDatabaseError, error.message
   end
@@ -62,9 +62,7 @@ class ContactDatabase
 
   def establish_connection
     unless @connection
-      @connection = PG.connect(dbname: 'd31lb7ua77n7vv',
-                               host: 'ec2-174-129-1-179.compute-1.amazonaws.com',
-                               user: 'hqlbzawxegpatu', password: 'EfZ7-8Ztyjjt8gUD1RowlxN5_t')
+      @connection = PG.connect(DatabaseCredentials.credentials)
     end
     @connection
   end

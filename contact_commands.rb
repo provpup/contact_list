@@ -63,7 +63,7 @@ class CreateNewContactCommand < ContactCommand
   end
 
   def self.command_description
-    '                - Create a new contact'
+    '                                               - Create a new contact'
   end
 
   # Prompt the user for name, email, and optional phone number information
@@ -113,7 +113,7 @@ class ListAllContactsCommand < ContactCommand
   end
 
   def self.command_description
-    '               - List all contacts'
+    '                                              - List all contacts'
   end
 
   # List all contacts
@@ -136,18 +136,19 @@ class ShowContactCommand < ContactCommand
     @contact_id = arguments.shift
     if @contact_id.nil? || @contact_id.to_i == 0
       # No argument or not a valid number
-      raise(ArgumentError, "Invalid argument for showing contact: #{contact_id}")
+      raise(ArgumentError, "Invalid argument for showing contact: #{@contact_id}")
     end
     @contact_id = @contact_id.to_i
   end
 
   def self.command_description
-    ' <id>          - Show a contact whose id value is <id>'
+    ' <id>                                         - Show a contact whose id value is <id>'
   end
 
   # Display the contact details for the provided contact id
   def run
     contact = Contact.get(@contact_id)
+    raise(ArgumentError, "No contact found with id #{@contact_id}") if contact.nil?
     display_contact_details(contact)
   rescue StandardError => error
     puts "Error encountered retrieving contact with id: #{@contact_id}"
@@ -181,7 +182,7 @@ class FindContactsCommand < ContactCommand
     when :lastname
       contacts = Contact.find_all_by_lastname(@arguments.last)
     when :email
-      contacts = Contact.find_by_email(@arguments.last)
+      contacts = [Contact.find_by_email(@arguments.last)]
     end
 
     display_contact_list(contacts, "found with data \"#{@arguments.last}\"\n")
@@ -209,7 +210,7 @@ class UpdateContactCommand < ContactCommand
   end
 
   def self.command_description
-    ' <id>        - Update a contact whose id value is <id>'
+    ' <id>                                       - Update a contact whose id value is <id>'
   end
 
   # Display the contact details for the provided contact id
@@ -275,7 +276,7 @@ class DeleteContactCommand < ContactCommand
   end
 
   def self.command_description
-    ' <id>        - Delete a contact whose id value is <id>'
+    ' <id>                                       - Delete a contact whose id value is <id>'
   end
 
   # Display the contact details for the provided contact id
@@ -346,7 +347,7 @@ class ShowHelpCommand < ContactCommand
   end
 
   def self.command_description
-    '               - Show this help message'
+    '                                              - Show this help message'
   end
 
   def run
