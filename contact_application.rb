@@ -9,6 +9,8 @@ class ContactApplication
 
   def run
     recognized_commands = { :new => CreateNewContactCommand.command_description,
+                            :update => UpdateContactCommand.command_description,
+                            :remove => DeleteContactCommand.command_description,
                             :list => ListAllContactsCommand.command_description,
                             :show => ShowContactCommand.command_description,
                             :find => FindContactsCommand.command_description,
@@ -19,6 +21,10 @@ class ContactApplication
     case @arguments.shift
     when :new.to_s
       CreateNewContactCommand.new(*@arguments).run
+    when :update.to_s
+      UpdateContactCommand.new(*@arguments).run
+    when :remove.to_s
+      DeleteContactCommand.new(*@arguments).run
     when :list.to_s
       ListAllContactsCommand.new(*@arguments).run
     when :show.to_s
@@ -28,7 +34,7 @@ class ContactApplication
     when :help.to_s
       ShowHelpCommand.new(recognized_commands).run
     else
-      raise(ArgumentError, "Invalid argument not recognized: #{@arguments.join(' ')}")
+      raise(ArgumentError, "Invalid argument not recognized")
     end
   rescue ArgumentError => error
     # Show a help message if arguments are malformed

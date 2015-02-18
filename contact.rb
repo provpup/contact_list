@@ -2,81 +2,113 @@ require_relative 'contact_database'
 
 class Contact
 
-  attr_reader :name, :email, :id, :phone_numbers
+  attr_accessor :first_name, :last_name, :email
+  attr_reader :id#, :phone_numbers
 
-  def initialize(name, email, phone_numbers = {}, id = nil)
-    @name = name
+  def initialize(first_name, last_name, email, id = nil)
+    @first_name = first_name
+    @last_name = last_name
     @email = email
-    @phone_numbers = phone_numbers
     @id = id
   end
  
   def to_s
     phone_num = ''
-    phone_num = ' (phone numbers hidden)' if !@phone_numbers.empty?
-    "#{name} (#{email})#{phone_num}"
+    #phone_num = ' (phone numbers hidden)' if !@phone_numbers.empty?
+    "#{first_name} #{last_name} (#{email})#{phone_num}"
+  end
+
+  def save
+    if id
+      self.class.update(self)
+    else
+      id = self.class.create(first_name, last_name, email)
+    end
+  end
+
+  def destroy
+    ContactDatabase.remove_row_with_id(id)
   end
  
   ## Class Methods
   class << self
-    def create(name, email, phone_numbers)
-      database = ContactDatabase.new
+    #def create(name, email, phone_numbers)
+    def create(first_name, last_name, email)
       # Any standard errors raised by ContactDatabase will flow upwards
-      id = database.add_row(name, email, phone_numbers.to_a.inspect)
+      id = ContactDatabase.add_row(first_name: first_name, last_name: last_name, email: email)
 
-      contact = Contact.new(name, email, phone_numbers, id)
+      contact = Contact.new(first_name, last_name, email, id)
+    end
+
+    def update(contact)
+      ContactDatabase.update_row_by_id(contact.id, first_name: contact.first_name,
+                                                   last_name: contact.last_name,
+                                                   email: contact.email)
     end
  
     def get(index)
-      database = ContactDatabase.new
-      row = database.find_row_by_id(index)
-      phone_number_hash = parse_phone_numbers(row[2])
-      contact = Contact.new(row[0], row[1], phone_number_hash, index)
+      rows_hash = ContactDatabase.find_row_by_id(index)
+      #phone_number_hash = parse_phone_numbers(row[2])
+      contact = to_contacts(rows_hash).first
     rescue ContactDatabaseError => error
       raise(ArgumentError, "Invalid index\n#{error.message}")
     end
  
     # Return all Contact objects
     def all
-      database = ContactDatabase.new
       # Any standard errors raised by ContactDatabase will flow upwards
-      rows_hash = database.get_all_rows
-      contacts = []
-      rows_hash.keys.each do |row|
-        phone_number_hash = parse_phone_numbers(row[2])
-        contact = Contact.new(row[0], row[1], phone_number_hash, rows_hash[row])
-        contacts.push(contact)
-      end
-
-      contacts
+      rows_hash = ContactDatabase.all_rows
+      contacts = to_contacts(rows_hash)
     end
     
     # Return all contacts whose values contain the given string
     def find(value)
-      database = ContactDatabase.new
       # Any standard errors raised by ContactDatabase will flow upwards
-      rows_hash = database.search_for_row_with(value)
-      contacts = []
-      rows_hash.keys.each do |row|
-        phone_number_hash = parse_phone_numbers(row[2])
-        contact = Contact.new(row[0], row[1], phone_number_hash, rows_hash[row])
-        contacts.push(contact)
+      rows_hash = ContactDatabase.search_for_row_with(email: value)
+      contacts = to_contacts(rows_hash)
+    end
+
+    def find_all_by_lastname(last_name)
+      # Any standard errors raised by ContactDatabase will flow upwards
+      rows_hash = ContactDatabase.search_for_row_with(lastname: last_name)
+      contacts = to_contacts(rows_hash)
+    end
+
+    def find_all_by_firstname(first_name)
+      # Any standard errors raised by ContactDatabase will flow upwards
+      rows_hash = ContactDatabase.search_for_row_with(firstname: first_name)
+      contacts = to_contacts(rows_hash)
+    end
+
+    def find_by_email(email)
+      # Any standard errors raised by ContactDatabase will flow upwards
+      rows_hash = ContactDatabase.search_for_row_with(email: email)
+      contacts = to_contacts(rows_hash)
+      if contacts.size > 1
+        raise "More than one contact has the same email address: #{email}"
       end
 
-      contacts
+      contacts.first
     end
 
     def email_already_exists?(email)
       # Find contacts that contain the email string
-      contacts_containing_email = find(email)
+      contacts_containing_email = find_by_email(email)
 
-      # Out of those, see if there are any with an exact match
-      contacts_containing_email.any? do |contact|
-        contact.email == email
-      end
+      !contacts_containing_email.nil?
     end
 
     private
+    def to_contacts(rows_hash)
+      contacts = []
+      rows_hash.each do |row|
+        #phone_number_hash = parse_phone_numbers(row[2])
+        contact = Contact.new(row[:firstname.to_s], row[:lastname.to_s], row[:email.to_s], row[:id.to_s])
+        #contact = Contact.new(row[0], row[1], phone_number_hash, rows_hash[row])
+        contacts << contact
+      end
+      contacts
+    end
     # This method takes in a string value that was serialized hash
     # the string should represent an array of arrays (each subarray
     # is a key-value pair in the hash)

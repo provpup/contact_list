@@ -1,71 +1,73 @@
-require 'csv'
+require 'pg'
+require 'pry'
 
 class ContactDatabaseError < StandardError
 end
 
 class ContactDatabase
 
-  def initialize
-    @csv_file = 'contacts.csv'
-  end
+  CONTACT_TABLE_NAME = 'contacts'
+
+  class << self
 
   # This will return a hash with the index as the key and
   # the contact data array as the value
-  def get_all_rows
-    contacts = open_database_for_reading
-    contacts_indices = Array(1..contacts.length)
-
-    contacts_hash = contacts.zip(contacts_indices).to_h
+  def all_rows
+    connection = establish_connection
+    rows = connection.exec("SELECT * FROM #{CONTACT_TABLE_NAME};")
+    #rows
+  rescue PG::Error => error
+    raise ContactDatabaseError, error.message
   end
 
   def find_row_by_id(row_id)
-    contacts = get_all_rows
-    if contacts.empty?
-      raise(ContactDatabaseError, 'Contact database is empty')
-    end
-    if row_id <= 0 || row_id > contacts.length
-      raise(ContactDatabaseError, "Invalid row id, valid values must be between 1 and #{contacts.length} inclusive")
-    end
-    contacts.keys[row_id - 1]
+    connection = self.establish_connection
+    row = connection.exec_params("SELECT * FROM #{CONTACT_TABLE_NAME} WHERE id = $1;", [row_id])
+  rescue PG::Error => error
+    raise ContactDatabaseError, error.message
   end
 
-  def search_for_row_with(string_value)
-    contacts_hash = get_all_rows
-    # The contacts data arrays are keys in the hash, so we see if any
-    # of them have string_value contained in any one of the values
-    contacts_array = contacts_hash.keys.select do |contact|
-      contact.any? do |data|
-        data.include?(string_value)
-      end
-    end
-
-    # The contacts_array has the matches, but we also need to index data
-    # from the contacts_hash
-    contacts_hash.select do |contact, contact_index|
-      contacts_array.include?(contact)
-    end
+  def search_for_row_with(values_hash)
+    connection = self.establish_connection
+    hash_key = values_hash.keys.first
+    rows = connection.exec_params("SELECT * FROM #{CONTACT_TABLE_NAME} WHERE #{hash_key} = $1;", [values_hash[hash_key]])
+  rescue PG::Error => error
+    raise ContactDatabaseError, error.message
   end
 
-  # Add a new row to the database by appending it to the end of the CSV file
-  def add_row(*row_values)
-    begin
-      CSV.open(csv_file, 'a') do |csv|
-        csv << row_values
-      end
-    rescue StandardError => error
-      raise(ContactDatabaseError, error.message)
-    end
-    get_all_rows.length
+  def update_row_by_id(row_id, values_hash)
+    connection = self.establish_connection
+    result = connection.exec_params("UPDATE #{CONTACT_TABLE_NAME} SET firstname=$1, lastname=$2, email=$3 WHERE id = $4",
+                                    [values_hash[:first_name], values_hash[:last_name], values_hash[:email], row_id])
+  rescue PG::Error => error
+    raise ContactDatabaseError, error.message
   end
 
-  private
-  def csv_file
-    @csv_file
-  end
-
-  def open_database_for_reading
-    CSV.read(csv_file, 'r')
-  rescue StandardError => error
+  def add_row(values_hash)
+    connection = self.establish_connection
+    id_column_name = 'id'
+    result = connection.exec_params("INSERT INTO #{CONTACT_TABLE_NAME} (firstname, lastname, email) VALUES ($1, $2, $3) returning #{id_column_name};",
+                                    [values_hash[:first_name], values_hash[:last_name], values_hash[:email]])
+    result[0][id_column_name].to_i
+  rescue PG::Error => error
     raise(ContactDatabaseError, error.message)
   end
+
+  def remove_row_with_id(row_id)
+    connection = self.establish_connection
+    result = connection.exec_params("DELETE FROM #{CONTACT_TABLE_NAME} WHERE id = $1", [row_id])
+  rescue PG::Error => error
+    raise ContactDatabaseError, error.message
+  end
+
+  def establish_connection
+    unless @connection
+      @connection = PG.connect(dbname: 'd31lb7ua77n7vv',
+                               host: 'ec2-174-129-1-179.compute-1.amazonaws.com',
+                               user: 'hqlbzawxegpatu', password: 'EfZ7-8Ztyjjt8gUD1RowlxN5_t')
+    end
+    @connection
+  end
+end
+
 end
