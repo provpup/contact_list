@@ -18,20 +18,20 @@ class ContactApplication
 
     # Look at the arguments passed into this application and then
     # take the appropriate action
-    case @arguments.shift
-    when :new.to_s
+    case @arguments.shift.to_sym
+    when :new
       CreateNewContactCommand.new(*@arguments).run
-    when :update.to_s
+    when :update
       UpdateContactCommand.new(*@arguments).run
-    when :remove.to_s
+    when :remove
       DeleteContactCommand.new(*@arguments).run
-    when :list.to_s
+    when :list
       ListAllContactsCommand.new(*@arguments).run
-    when :show.to_s
+    when :show
       ShowContactCommand.new(*@arguments).run
-    when :find.to_s
+    when :find
       FindContactsCommand.new(*@arguments).run
-    when :help.to_s
+    when :help
       ShowHelpCommand.new(recognized_commands).run
     else
       raise(ArgumentError, "Invalid argument not recognized")
