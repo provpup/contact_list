@@ -5,7 +5,7 @@ class PhoneNumber < ActiveRecord::Base
   belongs_to :user
 
   def to_s
-    "(#{numbertype}) #{phonenumber}"
+    "(#{numbertype.to_s.capitalize}) #{phonenumber}"
   end
 end
 

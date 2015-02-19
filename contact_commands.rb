@@ -13,7 +13,7 @@ module ContactDisplay
     until contacts.empty?
       page_size.times do
         contact = contacts.shift
-        puts "#{contact.id}: #{contact.to_s}" unless contact.nil?
+        puts "#{contact.id}: #{contact}" unless contact.nil?
       end
       unless contacts.empty?
         puts "\nPress any key to see more contacts..."
@@ -33,7 +33,7 @@ module ContactDisplay
     phone_label = 'Phone Number:'
     puts "#{phone_label} <None>" if contact.phone_numbers.empty?
     contact.phone_numbers.each do |phone_number|
-      puts "#{phone_label} (#{phone_number.numbertype.to_s.capitalize}) #{phone_number.phonenumber}"
+      puts "#{phone_label} #{phone_number}"
     end
     puts
   end
@@ -44,7 +44,7 @@ module AddPhoneNumber
     no_tag = 'n'
     phone_number_query = "Do you want to enter phone number for new contact? (y/#{no_tag}): "
     print phone_number_query
-    no_more_phone_numbers = no_tag == STDIN.gets.chomp
+    no_more_phone_numbers = no_tag == STDIN.gets.chomp.strip
     phone_numbers = []
     until no_more_phone_numbers
       print 'Please enter the category of the phone number: '
@@ -53,7 +53,7 @@ module AddPhoneNumber
       phone_number = STDIN.gets.chomp
       phone_numbers << PhoneNumber.new(phonenumber: phone_number, numbertype: phone_type)
       print phone_number_query
-      no_more_phone_numbers = no_tag == STDIN.gets.chomp
+      no_more_phone_numbers = no_tag == STDIN.gets.chomp.strip
     end
     phone_numbers.each do |number|
       contact.phone_numbers << number
