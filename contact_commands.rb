@@ -12,7 +12,6 @@ module ContactDisplay
     contacts = contacts.to_a
     until contacts.empty?
       page_size.times do
-#puts contacts.inspect
         contact = contacts.shift
         puts "#{contact.id}: #{contact.to_s}" unless contact.nil?
       end
@@ -31,6 +30,11 @@ module ContactDisplay
     puts "First Name:   #{contact.firstname}"
     puts "Last Name:    #{contact.lastname}"
     puts "E-mail:       #{contact.email}"
+    phone_label = 'Phone Number:'
+    puts "#{phone_label} <None>" if contact.phone_numbers.empty?
+    contact.phone_numbers.each do |phone_number|
+      puts "#{phone_label} (#{phone_number.numbertype.to_s.capitalize}) #{phone_number.phonenumber}"
+    end
     puts
   end
 end
@@ -77,7 +81,26 @@ class CreateNewContactCommand < ContactCommand
     first_name = STDIN.gets.chomp.strip
     print 'Please enter last name for new contact: '
     last_name = STDIN.gets.chomp.strip
-    contact = Contact.create(firstname: first_name, lastname: last_name, email: email)#, phone_numbers)
+
+    no_tag = 'n'
+    phone_number_query = "Do you want to enter phone number for new contact? (y/#{no_tag}): "
+    print phone_number_query
+    no_more_phone_numbers = no_tag == STDIN.gets.chomp
+    phone_numbers = []
+    until no_more_phone_numbers
+      print 'Please enter the category of the phone number: '
+      phone_type = STDIN.gets.chomp.to_sym
+      print 'Please enter the phone number: '
+      phone_number = STDIN.gets.chomp
+      phone_numbers << PhoneNumber.new(phonenumber: phone_number, numbertype: phone_type)
+      print phone_number_query
+      no_more_phone_numbers = no_tag == STDIN.gets.chomp
+    end
+    contact = Contact.create(firstname: first_name, lastname: last_name, email: email)
+    phone_numbers.each do |number|
+      contact.phone_numbers << number
+    end
+    contact.save
     puts "\nNew contact #{contact.to_s} added successfully with id: #{contact.id}"
   rescue StandardError => error
     puts "Error encountered creating new contact: #{error.message}"
