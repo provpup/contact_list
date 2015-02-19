@@ -1,6 +1,5 @@
 require_relative 'contact_commands'
 
-
 class ContactApplication
 
   def initialize(arguments)

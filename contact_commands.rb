@@ -1,4 +1,5 @@
 require_relative 'contact'
+require_relative 'database_setup'
 require 'io/console'
 
 # Module that contains methods for displaying contact information
@@ -8,8 +9,10 @@ module ContactDisplay
     original_number_of_contacts = contacts.length
     page_size = 5
 
+    contacts = contacts.to_a
     until contacts.empty?
       page_size.times do
+#puts contacts.inspect
         contact = contacts.shift
         puts "#{contact.id}: #{contact.to_s}" unless contact.nil?
       end
@@ -25,8 +28,8 @@ module ContactDisplay
 
   def display_contact_details(contact)
     puts "Index:        #{contact.id}"
-    puts "First Name:   #{contact.first_name}"
-    puts "Last Name:    #{contact.last_name}"
+    puts "First Name:   #{contact.firstname}"
+    puts "Last Name:    #{contact.lastname}"
     puts "E-mail:       #{contact.email}"
     puts
   end
@@ -74,7 +77,7 @@ class CreateNewContactCommand < ContactCommand
     first_name = STDIN.gets.chomp.strip
     print 'Please enter last name for new contact: '
     last_name = STDIN.gets.chomp.strip
-    contact = Contact.create(first_name, last_name, email)#, phone_numbers)
+    contact = Contact.create(firstname: first_name, lastname: last_name, email: email)#, phone_numbers)
     puts "\nNew contact #{contact.to_s} added successfully with id: #{contact.id}"
   rescue StandardError => error
     puts "Error encountered creating new contact: #{error.message}"
@@ -128,7 +131,7 @@ class ShowContactCommand < ContactCommand
 
   # Display the contact details for the provided contact id
   def run
-    contact = Contact.get(@contact_id)
+    contact = Contact.find(@contact_id)
     raise(ArgumentError, "No contact found with id #{@contact_id}") if contact.nil?
     display_contact_details(contact)
   rescue StandardError => error
@@ -159,11 +162,11 @@ class FindContactsCommand < ContactCommand
   def run
     case @arguments.first.to_sym
     when :firstname
-      contacts = Contact.find_all_by_firstname(@arguments.last)
+      contacts = Contact.where(firstname: @arguments.last)
     when :lastname
-      contacts = Contact.find_all_by_lastname(@arguments.last)
+      contacts = Contact.where(lastname: @arguments.last)
     when :email
-      contacts = [Contact.find_by_email(@arguments.last)]
+      contacts = Contact.where(email: @arguments.last)
     end
 
     display_contact_list(contacts, "found with data \"#{@arguments.last}\"\n")
@@ -196,7 +199,7 @@ class UpdateContactCommand < ContactCommand
 
   # Display the contact details for the provided contact id
   def run
-    contact = Contact.get(@contact_id)
+    contact = Contact.find(@contact_id)
 
     # unique_email = false
     # until unique_email
@@ -207,13 +210,13 @@ class UpdateContactCommand < ContactCommand
     # end
     print "\nPlease enter e-mail address for new contact [#{contact.email}]: "
     email = STDIN.gets.chomp.strip
-    print "Please enter first name for contact [#{contact.first_name}]: "
+    print "Please enter first name for contact [#{contact.firstname}]: "
     first_name = STDIN.gets.chomp.strip
-    print "Please enter last name for contact [#{contact.last_name}]: "
+    print "Please enter last name for contact [#{contact.lastname}]: "
     last_name = STDIN.gets.chomp.strip
     contact.email = email unless email.empty?
-    contact.first_name = first_name unless first_name.empty?
-    contact.last_name = last_name unless last_name.empty?
+    contact.firstname = first_name unless first_name.empty?
+    contact.lastname = last_name unless last_name.empty?
     contact.save
 
     puts "\nContact #{contact.to_s} updated successfully with id: #{contact.id}"
@@ -247,7 +250,7 @@ class DeleteContactCommand < ContactCommand
 
   # Display the contact details for the provided contact id
   def run
-    contact = Contact.get(@contact_id)
+    contact = Contact.find(@contact_id)
     unless contact.nil?
       yes_tag = 'y'
       no_tag = 'n'
