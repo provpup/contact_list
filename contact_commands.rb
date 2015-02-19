@@ -39,6 +39,28 @@ module ContactDisplay
   end
 end
 
+module AddPhoneNumber
+  def add_new_phone_numbers_to(contact)
+    no_tag = 'n'
+    phone_number_query = "Do you want to enter phone number for new contact? (y/#{no_tag}): "
+    print phone_number_query
+    no_more_phone_numbers = no_tag == STDIN.gets.chomp
+    phone_numbers = []
+    until no_more_phone_numbers
+      print 'Please enter the category of the phone number: '
+      phone_type = STDIN.gets.chomp.to_sym
+      print 'Please enter the phone number: '
+      phone_number = STDIN.gets.chomp
+      phone_numbers << PhoneNumber.new(phonenumber: phone_number, numbertype: phone_type)
+      print phone_number_query
+      no_more_phone_numbers = no_tag == STDIN.gets.chomp
+    end
+    phone_numbers.each do |number|
+      contact.phone_numbers << number
+    end
+  end
+end
+
 # Parent class for contact commands
 class ContactCommand
   def initialize(*arguments)
@@ -56,6 +78,7 @@ end
 
 # This class runs through the create new contact workflow
 class CreateNewContactCommand < ContactCommand
+  include AddPhoneNumber
 
   # This command takes no arguments
   def validate_arguments(*arguments)
@@ -81,25 +104,9 @@ class CreateNewContactCommand < ContactCommand
     first_name = STDIN.gets.chomp.strip
     print 'Please enter last name for new contact: '
     last_name = STDIN.gets.chomp.strip
-
-    no_tag = 'n'
-    phone_number_query = "Do you want to enter phone number for new contact? (y/#{no_tag}): "
-    print phone_number_query
-    no_more_phone_numbers = no_tag == STDIN.gets.chomp
-    phone_numbers = []
-    until no_more_phone_numbers
-      print 'Please enter the category of the phone number: '
-      phone_type = STDIN.gets.chomp.to_sym
-      print 'Please enter the phone number: '
-      phone_number = STDIN.gets.chomp
-      phone_numbers << PhoneNumber.new(phonenumber: phone_number, numbertype: phone_type)
-      print phone_number_query
-      no_more_phone_numbers = no_tag == STDIN.gets.chomp
-    end
     contact = Contact.create(firstname: first_name, lastname: last_name, email: email)
-    phone_numbers.each do |number|
-      contact.phone_numbers << number
-    end
+
+    add_new_phone_numbers_to(contact)
     contact.save
     puts "\nNew contact #{contact.to_s} added successfully with id: #{contact.id}"
   rescue StandardError => error
@@ -201,6 +208,7 @@ class FindContactsCommand < ContactCommand
 end
 
 class UpdateContactCommand < ContactCommand
+  include AddPhoneNumber
 
   # This command only takes in a single number
   def validate_arguments(*arguments)
@@ -224,22 +232,41 @@ class UpdateContactCommand < ContactCommand
   def run
     contact = Contact.find(@contact_id)
 
-    # unique_email = false
-    # until unique_email
-    #   print "\nPlease enter e-mail address for new contact [#{contact.email}]: "
-    #   email = STDIN.gets.chomp.strip
-    #   unique_email = !Contact.email_already_exists?(email)
-    #   puts 'Email already exists in the contact database!' if !unique_email
-    # end
-    print "\nPlease enter e-mail address for new contact [#{contact.email}]: "
-    email = STDIN.gets.chomp.strip
-    print "Please enter first name for contact [#{contact.firstname}]: "
+    unique_email = false
+    until unique_email
+      print "\nPlease enter new e-mail address for contact [#{contact.email}]: "
+      email = STDIN.gets.chomp.strip
+      unique_email = !Contact.email_already_exists?(email)
+      puts 'Email already exists in the contact database!' if !unique_email
+    end
+    print "Please enter new first name for contact [#{contact.firstname}]: "
     first_name = STDIN.gets.chomp.strip
-    print "Please enter last name for contact [#{contact.lastname}]: "
+    print "Please enter new last name for contact [#{contact.lastname}]: "
     last_name = STDIN.gets.chomp.strip
     contact.email = email unless email.empty?
     contact.firstname = first_name unless first_name.empty?
     contact.lastname = last_name unless last_name.empty?
+    # contact.save
+
+    phone_numbers = contact.phone_numbers.to_a
+    until phone_numbers.empty?
+      phone_number = phone_numbers.shift
+      print "(K)eep/(U)pdate/(D)elete #{phone_number.to_s}? "
+      option = STDIN.gets.chomp.strip
+      case option.downcase
+      when 'u'
+        print "Please enter new phone type [#{phone_number.numbertype}]: "
+        number_type = STDIN.gets.chomp.strip
+        print "Please enter new phone number [#{phone_number.phonenumber}]: "
+        number = STDIN.gets.chomp.strip
+        phone_number.numbertype = number_type unless number_type.empty?
+        phone_number.phonenumber = number unless number.empty?
+        phone_number.save
+      when 'd'
+        phone_number.destroy
+      end
+    end
+    add_new_phone_numbers_to(contact)
     contact.save
 
     puts "\nContact #{contact.to_s} updated successfully with id: #{contact.id}"

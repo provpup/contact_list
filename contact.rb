@@ -1,8 +1,12 @@
 require 'active_record'
 
 class PhoneNumber < ActiveRecord::Base
-  validates :numbertype, :phonenumber, :contact_id presence: true
+  validates :numbertype, :phonenumber, :contact_id, presence: true
   belongs_to :user
+
+  def to_s
+    "(#{numbertype}) #{phonenumber}"
+  end
 end
 
 class Contact < ActiveRecord::Base
