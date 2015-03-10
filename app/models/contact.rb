@@ -1,14 +1,3 @@
-require 'active_record'
-
-class PhoneNumber < ActiveRecord::Base
-  validates :numbertype, :phonenumber, :contact_id, presence: true
-  belongs_to :user
-
-  def to_s
-    "(#{numbertype.to_s.capitalize}) #{phonenumber}"
-  end
-end
-
 class Contact < ActiveRecord::Base
   validates :firstname, :lastname, :email, presence: true
   validates :email, uniqueness: true
