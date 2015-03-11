@@ -40,7 +40,7 @@ put '/contacts/:id', provides: :json do
     status 404
     return {success: false, message: 'Invalid contact id'}.to_json
   end
-  contact.update_attributes(params[:contact])
+  contact.update_attributes(firstname: params[:firstname], lastname: params[:lastname], email: params[:email])
   if contact.save
     status 202
     contact.to_json
@@ -67,8 +67,6 @@ end
 
 #    contact_phone_numbers GET    /contacts/:contact_id/phone_numbers(.:format)          phone_numbers#index
 #                          POST   /contacts/:contact_id/phone_numbers(.:format)          phone_numbers#create
-# new_contact_phone_number GET    /contacts/:contact_id/phone_numbers/new(.:format)      phone_numbers#new
-#edit_contact_phone_number GET    /contacts/:contact_id/phone_numbers/:id/edit(.:format) phone_numbers#edit
 #     contact_phone_number GET    /contacts/:contact_id/phone_numbers/:id(.:format)      phone_numbers#show
 #                          PATCH  /contacts/:contact_id/phone_numbers/:id(.:format)      phone_numbers#update
 #                          PUT    /contacts/:contact_id/phone_numbers/:id(.:format)      phone_numbers#update

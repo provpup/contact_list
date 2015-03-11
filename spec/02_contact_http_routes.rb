@@ -41,12 +41,26 @@ RSpec.describe 'Contact List API routes' do
   it 'should be able to retrieve a single contact' do
     get "/contacts/#{@dorothy.id}"
     expect(last_response).to be_ok
+    expect(last_response.content_type).to eql 'application/json'
     expect(last_response.body).to eql @dorothy.to_json
   end
 
   it 'should be able to handle retrieving an invalid contact id' do
     get '/contacts/1000000'
-
     expect(last_response).to be_not_found
   end
+
+  it 'should be able to delete a single contact' do
+    contact_id = @dorothy.id
+    delete "/contacts/#{contact_id}"
+    expect(last_response).to be_successful
+    expect(Contact.find_by_id(contact_id)).to be_falsey
+  end
+
+  it 'should be able to handle deleting an invalid contact id' do
+    delete '/contacts/1000000'
+    expect(last_response).to be_not_found
+  end
+
+
 end
