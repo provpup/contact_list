@@ -3,9 +3,10 @@ require 'faker'
 
 FactoryGirl.define do
   factory :contact do
-    firstname Faker::Name.first_name
-    lastname  Faker::Name.last_name
-    email     { Faker::Internet.email("#{firstname}.#{lastname}") }
+    firstname   { Faker::Name.first_name }
+    lastname    { Faker::Name.last_name }
+    email       { Faker::Internet.email("#{firstname}.#{lastname}") }
+    phonenumber { Faker::PhoneNumber.phone_number }
   end
 end
 

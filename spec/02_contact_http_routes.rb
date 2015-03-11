@@ -55,7 +55,7 @@ RSpec.describe 'Contact List API routes' do
     expect(last_response.successful?).to be_truthy
     expect(last_response.content_type).to eql 'application/json'
     @dorothy.reload
-    expect(last_response.body).to eql @dorothy.to_json
+    expect(@dorothy.firstname).to eql 'Diana'
   end
 
   it 'should be able to handle updating an invalid contact id' do
