@@ -12,7 +12,7 @@ end
 
 post '/contacts', provides: :json do
   content_type :json
-  contact = Contact.new(params[:contact])
+  contact = Contact.new(firstname: params[:firstname], lastname: params[:lastname], email: params[:email])
   if contact.save
     status 201
     contact.to_json

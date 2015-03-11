@@ -28,4 +28,15 @@ RSpec.describe 'Contact List API routes' do
     expect(last_response.body).to include_json(@sam.to_json)
     expect(last_response.body).to include_json(@dorothy.to_json)
   end
+
+  it 'should be able to create a new contact' do
+    post '/contacts', { firstname: 'Steve', lastname: 'Hammond', email: 'steve@gmail.com' }
+    expect(last_response).to be_created
+    steve = Contact.last
+    expect(steve.firstname).to eq 'Steve'
+    expect(steve.lastname).to eq 'Hammond'
+    expect(steve.email).to eq 'steve@gmail.com'
+  end
+
+  
 end
