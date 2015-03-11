@@ -24,7 +24,7 @@ end
 
 get '/contacts/:id', provides: :json do
   content_type :json
-  contact = Contact.find(params[:id])
+  contact = Contact.find_by_id(params[:id])
   unless contact
     status 404
     return {success: false, message: 'Invalid contact id'}.to_json
@@ -35,7 +35,7 @@ end
 
 put '/contacts/:id', provides: :json do
   content_type :json
-  contact = Contact.find(params[:id])
+  contact = Contact.find_by_id(params[:id])
   unless contact
     status 404
     return {success: false, message: 'Invalid contact id'}.to_json
@@ -52,7 +52,7 @@ end
 
 delete '/contacts/:id' do
   content_type :json
-  contact = Contact.find(params[:id])
+  contact = Contact.find_by_id(params[:id])
   unless contact
     status 404
     return {success: false, message: 'Invalid contact id'}.to_json

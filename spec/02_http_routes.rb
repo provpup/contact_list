@@ -38,5 +38,15 @@ RSpec.describe 'Contact List API routes' do
     expect(steve.email).to eq 'steve@gmail.com'
   end
 
-  
+  it 'should be able to retrieve a single contact' do
+    get "/contacts/#{@dorothy.id}"
+    expect(last_response).to be_ok
+    expect(last_response.body).to eql @dorothy.to_json
+  end
+
+  it 'should be able to handle retrieving an invalid contact id' do
+    get '/contacts/1000000'
+
+    expect(last_response).to be_not_found
+  end
 end
