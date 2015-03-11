@@ -20,7 +20,7 @@ post '/contacts', provides: :json do
     contact.to_json
   else
     status 500
-    return {success: false, message: contact_params.inspect + '\n' + contact.errors.full_messages.join(',')}.to_json
+    return {success: false, message: contact.errors.full_messages.join(',')}.to_json
   end
 end
 
@@ -47,7 +47,6 @@ put '/contacts/:id', provides: :json do
     key == :firstname || key == :lastname || key == :email
   end
   contact.assign_attributes(contact_params)
-  contact.update(contact_params)
   if contact.save
     status 202
     contact.to_json
