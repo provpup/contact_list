@@ -23,7 +23,7 @@ RSpec.describe 'Contact List API routes' do
 
   it 'should get all contacts as JSON' do
     get '/contacts'
-    expect(last_response).to be_ok
+    expect(last_response.ok?).to be_truthy
     expect(last_response.content_type).to eql 'application/json'
     expect(last_response.body).to include_json(@sam.to_json)
     expect(last_response.body).to include_json(@dorothy.to_json)
@@ -47,12 +47,12 @@ RSpec.describe 'Contact List API routes' do
 
   it 'should be able to handle retrieving an invalid contact id' do
     get '/contacts/1000000'
-    expect(last_response).to be_not_found
+    expect(last_response.not_found?).to be_truthy
   end
 
   it 'should be able to update a single contact' do
     put "/contacts/#{@dorothy.id}", { firstname: 'Diana' }
-    expect(last_response).to be_successful
+    expect(last_response.successful?).to be_truthy
     expect(last_response.content_type).to eql 'application/json'
     @dorothy.reload
     expect(last_response.body).to eql @dorothy.to_json
