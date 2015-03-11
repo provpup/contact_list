@@ -4,6 +4,7 @@ require 'bundler/setup'
 require 'active_support/all'
 
 require 'active_record'
+require 'rspec'
 require 'rspec/collection_matchers'
 require 'rack/test'
 
@@ -13,20 +14,8 @@ require 'database_cleaner'
 require 'dotenv'
 Dotenv.load
 
-require_relative 'app/models/contact'
-require_relative 'app/models/phone_number'
+require_relative 'config/environment'
 require_relative 'factories'
-
-db = URI.parse(ENV['DATABASE_URL'] || 'postgres://localhost/mydb')
-
-ActiveRecord::Base.establish_connection(
-  adapter:  db.scheme == 'postgres' ? 'postgresql' : db.scheme,
-  host:     db.host,
-  username: db.user,
-  password: db.password,
-  database: db.path[1..-1],
-  encoding: 'utf8'
-)
 
 # Recreate the database
 ActiveRecord::Migration.suppress_messages do
