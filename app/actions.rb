@@ -43,8 +43,9 @@ put '/contacts/:id', provides: :json do
     return {success: false, message: 'Invalid contact id'}.to_json
   end
   contact_params = params.symbolize_keys
+  contact_params.delete(:id)
   contact_params.keep_if do |key, value|
-    key == :firstname || key == :lastname || key == :email
+    Contact.attribute_names.include?(key)
   end
   contact.assign_attributes(contact_params)
   if contact.save
