@@ -12,13 +12,15 @@ end
 
 post '/contacts', provides: :json do
   content_type :json
-  contact = Contact.new(firstname: params[:firstname], lastname: params[:lastname], email: params[:email])
+  # contact_params = JSON.parse(request.env["rack.input"].read)
+  contact = Contact.new(params)
+  # contact.attributes = contact_params.deep_symbolize_keys
   if contact.save
     status 201
     contact.to_json
   else
     status 500
-    return {success: false, message: contact.errors.full_messages.join(',')}.to_json
+    return {success: false, message: contact_params.inspect + '\n' + contact.errors.full_messages.join(',')}.to_json
   end
 end
 
@@ -40,13 +42,18 @@ put '/contacts/:id', provides: :json do
     status 404
     return {success: false, message: 'Invalid contact id'}.to_json
   end
-  contact.update_attributes(firstname: params[:firstname], lastname: params[:lastname], email: params[:email])
+  contact_params = params.symbolize_keys
+  contact_params.keep_if do |key, value|
+    key == :firstname || key == :lastname || key == :email
+  end
+  contact.assign_attributes(contact_params)
+  contact.update(contact_params)
   if contact.save
     status 202
     contact.to_json
   else
     status 500
-    return {success: false, message: contact.errors.full_messages.join(',')}.to_json
+    return {success: false, message: contact_paramscontact.errors.full_messages.join(',')}.to_json
   end
 end
 

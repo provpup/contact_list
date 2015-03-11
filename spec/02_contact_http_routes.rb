@@ -31,7 +31,7 @@ RSpec.describe 'Contact List API routes' do
 
   it 'should be able to create a new contact' do
     post '/contacts', { firstname: 'Steve', lastname: 'Hammond', email: 'steve@gmail.com' }
-    expect(last_response).to be_created
+    expect(last_response.created?).to be_truthy
     steve = Contact.last
     expect(steve.firstname).to eq 'Steve'
     expect(steve.lastname).to eq 'Hammond'
@@ -40,7 +40,7 @@ RSpec.describe 'Contact List API routes' do
 
   it 'should be able to retrieve a single contact' do
     get "/contacts/#{@dorothy.id}"
-    expect(last_response).to be_ok
+    expect(last_response.ok?).to be_truthy
     expect(last_response.content_type).to eql 'application/json'
     expect(last_response.body).to eql @dorothy.to_json
   end
@@ -50,16 +50,29 @@ RSpec.describe 'Contact List API routes' do
     expect(last_response).to be_not_found
   end
 
+  it 'should be able to update a single contact' do
+    put "/contacts/#{@dorothy.id}", { firstname: 'Diana' }
+    expect(last_response).to be_successful
+    expect(last_response.content_type).to eql 'application/json'
+    @dorothy.reload
+    expect(last_response.body).to eql @dorothy.to_json
+  end
+
+  it 'should be able to handle updating an invalid contact id' do
+    put '/contacts/1000000'
+    expect(last_response.not_found?).to be_truthy
+  end
+
   it 'should be able to delete a single contact' do
     contact_id = @dorothy.id
     delete "/contacts/#{contact_id}"
-    expect(last_response).to be_successful
+    expect(last_response.successful?).to be_truthy
     expect(Contact.find_by_id(contact_id)).to be_falsey
   end
 
   it 'should be able to handle deleting an invalid contact id' do
     delete '/contacts/1000000'
-    expect(last_response).to be_not_found
+    expect(last_response.not_found?).to be_truthy
   end
 
 
