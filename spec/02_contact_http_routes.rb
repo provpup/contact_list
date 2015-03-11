@@ -30,7 +30,7 @@ RSpec.describe 'Contact List API routes' do
   end
 
   it 'should be able to create a new contact' do
-    post '/contacts', { firstname: 'Steve', lastname: 'Hammond', email: 'steve@gmail.com' }
+    post '/contacts', { firstname: 'Steve', lastname: 'Hammond', email: 'steve@gmail.com' }.to_json
     expect(last_response.created?).to be_truthy
     steve = Contact.last
     expect(steve.firstname).to eq 'Steve'
@@ -51,7 +51,7 @@ RSpec.describe 'Contact List API routes' do
   end
 
   it 'should be able to update a single contact' do
-    put "/contacts/#{@dorothy.id}", { firstname: 'Diana' }
+    put "/contacts/#{@dorothy.id}", { firstname: 'Diana' }.to_json
     expect(last_response.successful?).to be_truthy
     expect(last_response.content_type).to eql 'application/json'
     @dorothy.reload

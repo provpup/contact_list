@@ -10,9 +10,9 @@ get '/contacts', provides: :json do
 end
 
 post '/contacts', provides: :json do
-  # contact_params = JSON.parse(request.env["rack.input"].read)
-  contact = Contact.new(params)
-  # contact.attributes = contact_params.deep_symbolize_keys
+  contact_params = JSON.parse(request.env["rack.input"].read)
+  contact = Contact.new(contact_params)
+  contact.attributes = contact_params.deep_symbolize_keys
   if contact.save
     status 201
     json contact
@@ -40,7 +40,8 @@ put '/contacts/:id', provides: :json do
     json({success: false, message: 'Invalid contact id'})
     return
   end
-  contact_params = params.symbolize_keys
+  contact_params = JSON.parse(request.env["rack.input"].read)
+  contact_params.deep_symbolize_keys
   contact_params.delete(:id)
   contact_params.keep_if do |key, value|
     Contact.attribute_names.include?(key)
