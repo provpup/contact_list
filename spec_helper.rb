@@ -7,6 +7,7 @@ require 'active_record'
 require 'rspec'
 require 'rspec/collection_matchers'
 require 'rack/test'
+require 'json_spec'
 
 require 'factory_girl'
 require 'faker'
@@ -45,6 +46,8 @@ RSpec.configure do |config|
   config.after(:each) do
     DatabaseCleaner.clean
   end
+
+  config.include JsonSpec::Helpers
 
   config.mock_with(:rspec) do |mocks|
     # This option should be set when all dependencies are being loaded
