@@ -1,7 +1,6 @@
 require_relative '../factories'
 
 50.times do
-  contact = FactoryGirl.build :contact
-  contact.save!
+  contact = FactoryGirl.create :contact
 end
 
