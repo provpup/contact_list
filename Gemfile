@@ -2,11 +2,6 @@
 source "https://rubygems.org"
 
 gem 'pg'
-gem 'rspec'
-gem 'rspec-collection_matchers'
-gem 'factory_girl'
-gem 'faker'
-
 gem 'rake'
 gem 'activerecord'
 gem 'activesupport'
@@ -22,5 +17,11 @@ gem 'tux'
 group :development, :test do
   gem 'pry'
   gem 'shotgun'
+  gem 'rspec'
+  gem 'rspec-collection_matchers'
+  gem 'rack-test'
+  gem 'factory_girl'
+  gem 'faker'
+  gem 'database_cleaner'
 end
 
