@@ -3,14 +3,14 @@ $(document).ready(function() {
   var updateTable = function(jsonArray) {
     var contactNode = $('#contacts');
     contactNode.empty();
-    for (var i = 0; i < jsonArray.length; i++) {
+    $.each(jsonArray, function(index, value) {
       var rowNode = $('<tr>');
-      rowNode.append($('<td>').text(jsonArray[i]['firstname']));
-      rowNode.append($('<td>').text(jsonArray[i]['lastname']));
-      rowNode.append($('<td>').text(jsonArray[i]['email']));
-      rowNode.append($('<td>').text(jsonArray[i]['phonenumber']));
+      rowNode.append($('<td>').text(value['firstname']));
+      rowNode.append($('<td>').text(value['lastname']));
+      rowNode.append($('<td>').append($('<a>').attr('href', 'mailto:' + value['email']).text('E-mail contact')));
+      rowNode.append($('<td>').text(value['phonenumber']));
       contactNode.append(rowNode);
-    }
+    });
   };
 
   $.getJSON('/contacts').done(updateTable);
