@@ -4,7 +4,7 @@ $(document).ready(function() {
     var contactNode = $('#contacts');
     contactNode.empty();
     $.each(jsonArray, function(index, value) {
-      var rowNode = $('<tr>');
+      var rowNode = $('<tr>').attr('data-row-id', value['id']);
       rowNode.append($('<td>').text(value['firstname']));
       rowNode.append($('<td>').text(value['lastname']));
       rowNode.append($('<td>').append($('<a>').attr('href', 'mailto:' + value['email']).text('E-mail contact')));
